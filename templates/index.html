@@ -295,6 +295,178 @@
       margin-top: 1px;
     }
 
+    /* ── Supplier Rankings ── */
+    .supplier-section {
+      margin-bottom: 16px;
+    }
+    .supplier-section .card-header {
+      justify-content: space-between;
+    }
+    .run-btn {
+      background: var(--product-color);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter .15s;
+    }
+    .run-btn:hover { filter: brightness(1.1); }
+    .run-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+    .supplier-empty {
+      padding: 32px 20px;
+      text-align: center;
+      color: #9ca3af;
+      font-size: 13px;
+      line-height: 2;
+    }
+    .supplier-empty .hint {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #d1d5db;
+    }
+
+    .supplier-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .supplier-table th {
+      background: #f9fafb;
+      color: #6b7280;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .supplier-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #f8f9fa;
+      vertical-align: top;
+      color: #374151;
+    }
+    .supplier-table tr:last-child td { border-bottom: none; }
+    .supplier-table tr:hover td { background: #fafbff; }
+
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .rank-1 { background: #fef3c7; color: #92400e; }
+    .rank-2 { background: #f1f5f9; color: #475569; }
+    .rank-3 { background: #fdf4ff; color: #7c3aed; }
+    .rank-other { background: #f3f4f6; color: #9ca3af; }
+
+    .score-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .score-bar {
+      flex: 1;
+      height: 6px;
+      background: #f3f4f6;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .score-fill {
+      height: 100%;
+      background: var(--product-color);
+      border-radius: 3px;
+      opacity: .8;
+    }
+    .score-val {
+      font-weight: 700;
+      color: var(--product-color);
+      font-size: 13px;
+      min-width: 28px;
+      text-align: right;
+    }
+
+    .company-name {
+      font-weight: 600;
+      color: #111827;
+    }
+    .company-loc {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+    .supplier-link {
+      color: var(--product-color);
+      text-decoration: none;
+      font-size: 12px;
+    }
+    .supplier-link:hover { text-decoration: underline; }
+
+    .detail-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .detail-tag {
+      background: #f0f5ff;
+      color: var(--product-color);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 11px;
+    }
+
+    /* ── Scraper Log Modal ── */
+    #log-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+    #log-modal.show { display: flex; }
+    .log-box {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      font-family: monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 700px;
+      width: 90vw;
+      max-height: 70vh;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .log-title { color: #a6e3a1; font-weight: 700; font-size: 14px; }
+    .log-close {
+      background: none;
+      border: none;
+      color: #6c7086;
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .log-close:hover { color: #cdd6f4; }
+
     /* ── Footer ── */
     .footer {
       text-align: center;
@@ -312,6 +484,8 @@
       .tab { padding: 11px 12px; font-size: 12px; }
       .hero { flex-direction: column; gap: 12px; }
       .hero-icon { font-size: 32px; }
+      .supplier-table th:nth-child(4),
+      .supplier-table td:nth-child(4) { display: none; }
     }
   </style>
 </head>
@@ -368,6 +542,83 @@
         </div>
         <div class="hero-note">⚡ 采购要点：{{ p.note }}</div>
       </div>
+    </div>
+
+    <!-- Ranked Suppliers -->
+    <div class="supplier-section card" style="margin-bottom:16px;">
+      <div class="card-header">
+        🏆 智能排名商家（1688 实时数据）
+        <button class="run-btn" onclick="runScraper('{{ p.key }}', this)">
+          🔄 抓取更新
+        </button>
+      </div>
+
+      {% if p.suppliers %}
+      <div style="overflow-x:auto;">
+        <table class="supplier-table">
+          <thead>
+            <tr>
+              <th style="width:40px">排名</th>
+              <th>商家</th>
+              <th style="width:90px">综合评分</th>
+              <th style="width:80px">价格</th>
+              <th style="width:80px">成交量</th>
+              <th style="width:60px">详情</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in p.suppliers %}
+            <tr>
+              <td>
+                <span class="rank-badge rank-{% if loop.index <= 3 %}{{ loop.index }}{% else %}other{% endif %}">
+                  {{ loop.index }}
+                </span>
+              </td>
+              <td>
+                <div class="company-name">{{ s.company or s.title[:20] or '—' }}</div>
+                <div class="company-loc">📍 {{ s.location or '产地未知' }}</div>
+                {% if s.tags %}
+                <div class="detail-tags">
+                  {% for tag in s.tags.split()[:3] %}
+                  <span class="detail-tag">{{ tag }}</span>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </td>
+              <td>
+                <div class="score-bar-wrap">
+                  <div class="score-bar">
+                    <div class="score-fill" style="width:{{ s.score }}%"></div>
+                  </div>
+                  <span class="score-val">{{ s.score }}</span>
+                </div>
+              </td>
+              <td>
+                {% if s.price_n %}¥{{ "%.1f"|format(s.price_n) }}{% else %}—{% endif %}
+              </td>
+              <td>
+                {% if s.sales_n >= 10000 %}
+                  {{ "%.1f"|format(s.sales_n / 10000) }}万笔
+                {% elif s.sales_n > 0 %}
+                  {{ s.sales_n }}笔
+                {% else %}—{% endif %}
+              </td>
+              <td>
+                {% if s.url %}
+                <a class="supplier-link" href="{{ s.url }}" target="_blank" rel="noopener">查看 →</a>
+                {% else %}—{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="supplier-empty">
+        暂无抓取数据
+        <div class="hint">点击「🔄 抓取更新」从 1688.com 抓取实时排名<br>⚠️ 需要中国大陆 IP（VPN 切换到国内节点后运行）</div>
+      </div>
+      {% endif %}
     </div>
 
     <!-- Grid: Links + Keywords -->
@@ -450,6 +701,20 @@
   {% endfor %}
 </div>
 
+<!-- Scraper Log Modal -->
+<div id="log-modal">
+  <div style="width:90vw;max-width:720px;">
+    <div class="log-header">
+      <span class="log-title">🔄 1688 数据抓取日志</span>
+      <button class="log-close" onclick="closeLog()">✕</button>
+    </div>
+    <div class="log-box" id="log-content">正在抓取，请稍候…</div>
+    <div style="text-align:center;margin-top:12px;">
+      <button onclick="closeLog()" style="background:#6c7086;color:#fff;border:none;padding:8px 24px;border-radius:8px;cursor:pointer;font-size:13px;">关闭</button>
+    </div>
+  </div>
+</div>
+
 <!-- Footer -->
 <div class="footer">
   数据来源：<a href="https://www.1688.com" target="_blank">1688.com（阿里巴巴国内批发平台）</a>
@@ -475,6 +740,35 @@ function copyKw(btn, text) {
       btn.classList.remove('copied');
     }, 1800);
   });
+}
+
+function runScraper(productKey, btn) {
+  document.getElementById('log-content').textContent = '正在启动爬虫，请稍候（约 2–5 分钟）…\n\n⚠️ 确保已切换到中国大陆 VPN 节点';
+  document.getElementById('log-modal').classList.add('show');
+  btn.disabled = true;
+  btn.textContent = '⏳ 抓取中…';
+
+  fetch('/api/run', { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('log-content').textContent =
+        (data.ok ? '✅ 抓取完成！刷新页面查看结果。\n\n' : '❌ 抓取失败\n\n') +
+        (data.log || data.msg || '');
+      if (data.ok) {
+        setTimeout(() => location.reload(), 2000);
+      }
+    })
+    .catch(err => {
+      document.getElementById('log-content').textContent = '请求失败：' + err;
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.textContent = '🔄 抓取更新';
+    });
+}
+
+function closeLog() {
+  document.getElementById('log-modal').classList.remove('show');
 }
 </script>
 

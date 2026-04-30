@@ -3,10 +3,14 @@
 1688 Domestic Supplier Guide - Flask Web App
 国内采购导航工具（1688.com / 人民币结算）
 """
-import os
-from flask import Flask, render_template
+import os, json, subprocess, sys
+from pathlib import Path
+from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
+BASE_DIR    = Path(__file__).parent
+RESULTS_DIR = BASE_DIR / "results"
+RESULTS_DIR.mkdir(exist_ok=True)
 
 PRODUCTS = [
     {
@@ -18,7 +22,6 @@ PRODUCTS = [
         "price_range": "¥18 – ¥75 / 把",
         "moq": "通常 10–50 把起批",
         "note": "重点确认：锤头是否带磁铁/吸铁石、锤头材质（锻造合金钢优先）、手柄类型",
-        # 1688 直达链接
         "links": [
             {
                 "label": "🔍 带磁羊角锤 · 批发搜索",
@@ -45,7 +48,6 @@ PRODUCTS = [
                 "desc": "按品类浏览五金工具生产厂家"
             },
         ],
-        # 推荐搜索关键词（可直接复制到 1688 搜索框）
         "keywords": [
             "带磁羊角锤 厂家",
             "磁铁起钉锤 批发",
@@ -53,7 +55,6 @@ PRODUCTS = [
             "合金钢羊角锤 玻璃纤维柄",
             "16oz羊角锤 带吸铁石",
         ],
-        # 选品要点
         "specs": [
             {"label": "锤头材质", "value": "锻造合金钢 / 45#钢，硬度 HRC 42–52", "key": True},
             {"label": "磁铁功能", "value": "锤头端面嵌入磁铁，可吸附钉子单手操作", "key": True},
@@ -61,7 +62,6 @@ PRODUCTS = [
             {"label": "常见规格", "value": "8oz(230g) / 16oz(450g) / 20oz(560g)", "key": False},
             {"label": "羊角设计", "value": "V型开口，起钉省力，建议开口宽度 ≥12mm", "key": False},
         ],
-        # 注意事项
         "tips": [
             "索要样品测试磁力强度，吸住普通钉子不脱落即合格",
             "确认锤头与柄的连接方式（楔形铆接 > 螺栓连接）",
@@ -183,9 +183,58 @@ PRODUCTS = [
     },
 ]
 
+PRODUCT_MAP = {p["key"]: p for p in PRODUCTS}
+
+
+def load_latest_results() -> dict:
+    """Load the most recent 1688_*.json from results/. Returns {} if none found."""
+    files = sorted(RESULTS_DIR.glob("1688_*.json"), reverse=True)
+    if not files:
+        return {}
+    try:
+        with open(files[0], encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
 @app.route("/")
 def index():
+    ranked = load_latest_results()
+    # Attach ranked supplier list to each product
+    for p in PRODUCTS:
+        p["suppliers"] = ranked.get(p["key"], [])
     return render_template("index.html", products=PRODUCTS)
+
+
+@app.route("/api/run", methods=["POST"])
+def api_run():
+    """Trigger scraper_1688.py as a subprocess (requires Chinese IP)."""
+    scraper = BASE_DIR / "scraper_1688.py"
+    if not scraper.exists():
+        return jsonify({"ok": False, "msg": "scraper_1688.py not found"}), 404
+    try:
+        proc = subprocess.Popen(
+            [sys.executable, str(scraper)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        out, _ = proc.communicate(timeout=300)
+        return jsonify({"ok": proc.returncode == 0, "log": out[-4000:]})
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        return jsonify({"ok": False, "msg": "超时（5分钟）"}), 504
+    except Exception as e:
+        return jsonify({"ok": False, "msg": str(e)}), 500
+
+
+@app.route("/api/results")
+def api_results():
+    return jsonify(load_latest_results())
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
