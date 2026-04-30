@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+manufacturer_finder.log
+启动网页.bat
