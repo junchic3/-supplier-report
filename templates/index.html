@@ -3,13 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>中国优质厂商推荐 · Supplier Report</title>
+  <title>国内厂商采购指南 · 1688直采</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --radius: 14px;
+      --shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-                   "Helvetica Neue", Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
       background: #f0f2f5;
       color: #1a1a2e;
       min-height: 100vh;
@@ -17,591 +21,444 @@
 
     /* ── Header ── */
     .header {
-      background: linear-gradient(135deg, #0f3460 0%, #1a6ebd 60%, #16213e 100%);
-      padding: 36px 24px 28px;
+      background: linear-gradient(135deg, #0f2460 0%, #1a5fb4 55%, #0d3b8e 100%);
+      padding: 40px 20px 32px;
       text-align: center;
       position: relative;
       overflow: hidden;
     }
-    .header::before {
+    .header::after {
       content: "";
-      position: absolute; inset: 0;
-      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: 30px;
+      background: #f0f2f5;
+      clip-path: ellipse(55% 100% at 50% 100%);
     }
-    .header h1 {
-      color: #fff;
-      font-size: clamp(20px, 4vw, 28px);
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      position: relative;
-    }
-    .header p {
+    .header h1 { color: #fff; font-size: clamp(18px, 4vw, 26px); font-weight: 700; }
+    .header .sub {
       color: #93c5fd;
-      font-size: 14px;
-      margin-top: 8px;
-      position: relative;
+      font-size: 13px;
+      margin-top: 6px;
     }
-    .header .badge-row {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-      position: relative;
-    }
-    .badge {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2);
+    .platform-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
       color: #e0f2fe;
-      padding: 4px 14px;
+      padding: 6px 18px;
       border-radius: 20px;
       font-size: 13px;
-      backdrop-filter: blur(4px);
-    }
-    .date-tag {
-      background: rgba(255,255,255,0.08);
-      color: #bfdbfe;
-      font-size: 12px;
-      padding: 6px 16px;
-      border-radius: 20px;
       margin-top: 14px;
+    }
+    .platform-badge .dot {
+      width: 8px; height: 8px;
+      background: #4ade80;
+      border-radius: 50%;
       display: inline-block;
-      border: 1px solid rgba(255,255,255,0.15);
-      position: relative;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .4; }
     }
 
-    /* ── Nav Tabs ── */
+    /* ── Nav ── */
     .tab-bar {
       background: #fff;
       border-bottom: 1px solid #e5e7eb;
       display: flex;
       justify-content: center;
-      gap: 0;
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      box-shadow: 0 2px 8px rgba(0,0,0,.05);
     }
     .tab {
-      padding: 14px 28px;
+      padding: 14px 24px;
       cursor: pointer;
       font-size: 14px;
       font-weight: 500;
       color: #6b7280;
       border-bottom: 3px solid transparent;
-      transition: all 0.2s;
-      white-space: nowrap;
+      transition: all .2s;
       user-select: none;
+      white-space: nowrap;
     }
-    .tab:hover { color: #1d4ed8; background: #f5f8ff; }
-    .tab.active { color: #1d4ed8; border-bottom-color: #1d4ed8; background: #f0f5ff; }
-    .tab .tab-icon { margin-right: 6px; }
-    .tab .tab-count {
-      background: #dbeafe;
-      color: #1d4ed8;
-      font-size: 11px;
-      padding: 1px 7px;
-      border-radius: 10px;
-      margin-left: 6px;
-    }
+    .tab:hover { color: #1d4ed8; }
+    .tab.active { color: var(--tab-color, #1d4ed8); border-bottom-color: var(--tab-color, #1d4ed8); }
 
-    /* ── Main Content ── */
-    .main { max-width: 1100px; margin: 0 auto; padding: 28px 16px 48px; }
-
+    /* ── Layout ── */
+    .main { max-width: 1000px; margin: 0 auto; padding: 28px 16px 60px; }
     .panel { display: none; }
-    .panel.active { display: block; }
+    .panel.active { display: block; animation: fadeIn .2s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
 
-    /* ── Product Header ── */
-    .product-header {
+    /* ── Product Hero ── */
+    .hero {
       background: #fff;
-      border-radius: 14px;
-      padding: 20px 24px;
+      border-radius: var(--radius);
+      padding: 24px;
       margin-bottom: 20px;
-      border-left: 5px solid #1d4ed8;
-      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      box-shadow: var(--shadow);
+      border-top: 4px solid var(--product-color);
       display: flex;
+      gap: 20px;
       align-items: flex-start;
-      gap: 16px;
     }
-    .product-icon { font-size: 36px; flex-shrink: 0; }
-    .product-header h2 { font-size: 18px; color: #1e3a8a; font-weight: 700; }
-    .product-header .en { font-size: 13px; color: #6b7280; margin-top: 2px; }
-    .product-header .note-text {
+    .hero-icon { font-size: 44px; flex-shrink: 0; line-height: 1; }
+    .hero-title { font-size: 20px; font-weight: 700; color: #111827; }
+    .hero-en { font-size: 13px; color: #9ca3af; margin-top: 2px; }
+    .hero-meta {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .meta-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: #374151;
+    }
+    .meta-pill .label { color: #9ca3af; }
+    .meta-pill .value { font-weight: 600; color: var(--product-color); }
+    .hero-note {
+      margin-top: 12px;
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 8px;
+      padding: 8px 14px;
       font-size: 12px;
       color: #92400e;
-      background: #fef3c7;
-      border: 1px solid #fcd34d;
-      border-radius: 6px;
-      padding: 5px 10px;
-      margin-top: 8px;
-      display: inline-block;
+      line-height: 1.6;
     }
 
-    /* ── Controls ── */
-    .controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    /* ── Grid ── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
       margin-bottom: 16px;
-      flex-wrap: wrap;
     }
-    .search-box {
-      flex: 1;
-      min-width: 180px;
-      padding: 9px 14px 9px 36px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
+    @media (max-width: 680px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* ── Card ── */
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 18px;
       font-size: 13px;
-      outline: none;
-      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E") 10px center no-repeat;
-      transition: border-color 0.2s;
-    }
-    .search-box:focus { border-color: #1d4ed8; box-shadow: 0 0 0 3px rgba(29,78,216,.12); }
-
-    .filter-btn {
-      padding: 8px 16px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 12px;
-      cursor: pointer;
-      background: #fff;
-      color: #374151;
-      transition: all 0.15s;
-      white-space: nowrap;
-    }
-    .filter-btn:hover { border-color: #1d4ed8; color: #1d4ed8; }
-    .filter-btn.active { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
-
-    /* ── Table ── */
-    .table-wrap {
-      background: #fff;
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 1px 6px rgba(0,0,0,.08);
-    }
-    table { width: 100%; border-collapse: collapse; }
-    thead tr { background: #f8fafc; }
-    th {
-      padding: 12px 14px;
-      font-size: 11px;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #6b7280;
-      text-align: left;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    th.center { text-align: center; }
-    tbody tr {
+      color: #374151;
       border-bottom: 1px solid #f3f4f6;
-      transition: background 0.15s;
-    }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: #f8fafc; }
-    td { padding: 14px; vertical-align: middle; }
-    td.center { text-align: center; }
-
-    /* rank number */
-    .rank-num {
-      font-size: 16px;
-      font-weight: 800;
-      color: #d1d5db;
-      text-align: center;
-    }
-    tbody tr:nth-child(1) .rank-num { color: #f59e0b; }
-    tbody tr:nth-child(2) .rank-num { color: #9ca3af; }
-    tbody tr:nth-child(3) .rank-num { color: #cd7f32; }
-
-    /* company cell */
-    .company-name {
-      font-weight: 700;
-      font-size: 14px;
-      color: #111827;
-      line-height: 1.3;
-    }
-    .product-title {
-      font-size: 11px;
-      color: #9ca3af;
-      margin-top: 3px;
-      max-width: 280px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .meta-row {
       display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    /* ── Links ── */
+    .link-list { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .link-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all .15s;
+      border: 1.5px solid transparent;
+    }
+    .link-btn .lft { display: flex; flex-direction: column; gap: 2px; }
+    .link-btn .btn-label { font-size: 13px; font-weight: 600; }
+    .link-btn .btn-desc { font-size: 11px; opacity: .75; }
+    .link-btn .arrow { font-size: 16px; flex-shrink: 0; opacity: .6; }
+    .link-btn:hover .arrow { opacity: 1; transform: translateX(2px); }
+    .link-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+
+    .link-btn.primary {
+      background: var(--product-color);
+      color: #fff;
+    }
+    .link-btn.primary:hover { filter: brightness(1.1); }
+
+    .link-btn.secondary {
+      background: #f0f5ff;
+      color: var(--product-color);
+      border-color: #dbeafe;
+    }
+    .link-btn.secondary:hover { background: #dbeafe; }
+
+    .link-btn.tertiary {
+      background: #f9fafb;
+      color: #374151;
+      border-color: #e5e7eb;
+    }
+    .link-btn.tertiary:hover { background: #f3f4f6; }
+
+    /* ── Keywords ── */
+    .kw-list { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .kw-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 8px;
-      margin-top: 6px;
-      flex-wrap: wrap;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 9px 12px;
+    }
+    .kw-text { font-size: 13px; font-weight: 500; color: #111827; font-family: monospace; }
+    .kw-copy {
+      background: none;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      color: #6b7280;
+      transition: all .15s;
+      flex-shrink: 0;
+    }
+    .kw-copy:hover { border-color: var(--product-color); color: var(--product-color); }
+    .kw-copy.copied { border-color: #16a34a; color: #16a34a; }
+
+    /* ── Specs ── */
+    .spec-list { padding: 0; }
+    .spec-row {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 13px;
+    }
+    .spec-row:last-child { border-bottom: none; }
+    .spec-label {
+      padding: 11px 14px;
+      width: 100px;
+      flex-shrink: 0;
+      color: #6b7280;
+      font-size: 12px;
+      background: #fafafa;
+      border-right: 1px solid #f3f4f6;
+      display: flex;
       align-items: center;
     }
-    .tag {
-      font-size: 10px;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 500;
-      white-space: nowrap;
+    .spec-value {
+      padding: 11px 14px;
+      color: #111827;
+      line-height: 1.5;
+      flex: 1;
     }
-    .tag-factory  { background: #dbeafe; color: #1d4ed8; }
-    .tag-trade    { background: #f3f4f6; color: #9ca3af; }
-    .tag-diamond  { background: #ede9fe; color: #6d28d9; }
-    .tag-gold     { background: #fef3c7; color: #b45309; }
-    .tag-audited  { background: #dcfce7; color: #166534; }
-    .tag-loc      { background: #f0fdf4; color: #166534; font-style: italic; }
-
-    /* score bar */
-    .score-cell { min-width: 80px; text-align: center; }
-    .score-num {
-      font-size: 26px;
-      font-weight: 800;
-      line-height: 1;
-    }
-    .score-label { font-size: 10px; margin-top: 2px; }
-    .score-bar-track {
-      height: 4px;
-      background: #f3f4f6;
-      border-radius: 2px;
-      margin: 5px auto;
-      width: 54px;
-      overflow: hidden;
-    }
-    .score-bar-fill { height: 100%; border-radius: 2px; }
-
-    /* score colors */
-    .s-high   { color: #16a34a; }
-    .s-good   { color: #2563eb; }
-    .s-mid    { color: #d97706; }
-    .s-low    { color: #dc2626; }
-    .bg-high  { background: #16a34a; }
-    .bg-good  { background: #2563eb; }
-    .bg-mid   { background: #d97706; }
-    .bg-low   { background: #dc2626; }
-
-    /* price */
-    .price-text { font-size: 13px; color: #374151; font-weight: 600; }
-    .moq-text   { font-size: 11px; color: #9ca3af; margin-top: 2px; }
-
-    /* action button */
-    .btn-detail {
+    .spec-row.key .spec-label { color: var(--product-color); font-weight: 600; }
+    .spec-row.key .spec-value { font-weight: 500; }
+    .key-dot {
       display: inline-block;
-      background: #1d4ed8;
-      color: #fff;
-      padding: 7px 16px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 12px;
-      font-weight: 600;
-      white-space: nowrap;
-      transition: background 0.15s;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--product-color);
+      margin-right: 5px;
+      vertical-align: middle;
     }
-    .btn-detail:hover { background: #1e40af; }
-    .btn-none { color: #d1d5db; font-size: 12px; }
 
-    /* ── Legend ── */
-    .legend {
-      background: #f8fafc;
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin-top: 14px;
-      font-size: 11px;
-      color: #6b7280;
-      line-height: 1.8;
-    }
-    .legend strong { color: #374151; }
-
-    /* ── Score breakdown tooltip (hover) ── */
-    .breakdown-row {
+    /* ── Tips ── */
+    .tip-list { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .tip-item {
       display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-      margin-top: 4px;
+      gap: 10px;
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.6;
     }
-    .bd-pill {
-      font-size: 9px;
-      padding: 1px 5px;
-      border-radius: 8px;
-      background: #f3f4f6;
-      color: #6b7280;
+    .tip-num {
+      flex-shrink: 0;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--product-color);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
     }
-    .bd-pill.hit { background: #dcfce7; color: #166534; }
 
-    /* ── Run button ── */
-    .run-bar {
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 24px 16px;
+      font-size: 12px;
+      color: #9ca3af;
       background: #fff;
       border-top: 1px solid #e5e7eb;
-      padding: 16px 24px;
-      text-align: center;
-      font-size: 13px;
-      color: #6b7280;
+      line-height: 1.8;
     }
-    .btn-run {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #0f3460;
-      color: #fff;
-      padding: 10px 24px;
-      border-radius: 10px;
-      border: none;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s;
-      margin-bottom: 8px;
-    }
-    .btn-run:hover { background: #1d4ed8; }
-    .btn-run:disabled { background: #9ca3af; cursor: not-allowed; }
-
-    /* ── Empty state ── */
-    .empty-state {
-      text-align: center;
-      padding: 60px 24px;
-      color: #9ca3af;
-    }
-    .empty-state .big-icon { font-size: 48px; margin-bottom: 12px; }
-    .empty-state p { font-size: 14px; margin-bottom: 20px; }
+    .footer a { color: #3b82f6; text-decoration: none; }
 
     /* ── Responsive ── */
-    @media (max-width: 700px) {
-      .tab { padding: 11px 14px; font-size: 12px; }
-      .tab .tab-count { display: none; }
-      th, td { padding: 10px 8px; }
-      .product-title { display: none; }
-      .score-bar-track { display: none; }
-    }
-    @media (max-width: 480px) {
-      .header { padding: 24px 16px 20px; }
-      .badge-row { gap: 6px; }
-      .badge { font-size: 11px; padding: 3px 10px; }
+    @media (max-width: 500px) {
+      .tab { padding: 11px 12px; font-size: 12px; }
+      .hero { flex-direction: column; gap: 12px; }
+      .hero-icon { font-size: 32px; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── Header ── -->
+<!-- Header -->
 <div class="header">
-  <h1>🏭 中国优质厂商推荐报告</h1>
-  <p>China Supplier Evaluation Report &nbsp;·&nbsp; Powered by Made-in-China.com</p>
-  <div class="badge-row">
-    {% for key, m in meta.items() %}
-    <span class="badge">{{ m.icon }} {{ m.name_cn }}</span>
-    {% endfor %}
+  <h1>🏭 国内厂商直采指南</h1>
+  <div class="sub">China Domestic Supplier Sourcing Guide</div>
+  <div class="platform-badge">
+    <span class="dot"></span>
+    数据来源: 1688.com（阿里巴巴国内版）· 人民币结算 · 厂家直供
   </div>
-  <div class="date-tag">📅 数据日期: {{ date_str if date_str != '—' else '尚未运行' }}</div>
 </div>
 
-<!-- ── Tabs ── -->
+<!-- Tabs -->
 <div class="tab-bar">
-  {% for key, m in meta.items() %}
+  {% for p in products %}
   <div class="tab {% if loop.first %}active{% endif %}"
-       onclick="switchTab('{{ key }}')" id="tab-{{ key }}">
-    <span class="tab-icon">{{ m.icon }}</span>
-    <span class="tab-cn">{{ m.name_cn.split('（')[0] }}</span>
-    {% if data and key in data %}
-    <span class="tab-count">{{ data[key]|length }}</span>
-    {% endif %}
+       id="tab-{{ p.key }}"
+       style="--tab-color: {{ p.color }};"
+       onclick="switchTab('{{ p.key }}')">
+    {{ p.icon }} {{ p.name_cn.split('（')[0] }}
   </div>
   {% endfor %}
 </div>
 
-<!-- ── Main ── -->
+<!-- Panels -->
 <div class="main">
+  {% for p in products %}
+  <div class="panel {% if loop.first %}active{% endif %}"
+       id="panel-{{ p.key }}"
+       style="--product-color: {{ p.color }};">
 
-  {% if not data %}
-  <div class="empty-state">
-    <div class="big-icon">📭</div>
-    <p>暂无数据，请先运行厂商搜寻程序</p>
-    <button class="btn-run" onclick="triggerRun(this)">
-      <span>▶</span> 立即抓取数据
-    </button>
-    <p style="font-size:12px;color:#d1d5db;margin-top:8px;">预计需要 3–5 分钟</p>
-  </div>
-  {% else %}
-
-  {% for key, m in meta.items() %}
-  <div class="panel {% if loop.first %}active{% endif %}" id="panel-{{ key }}">
-
-    <!-- Product Header -->
-    <div class="product-header">
-      <div class="product-icon">{{ m.icon }}</div>
-      <div>
-        <h2>{{ m.name_cn }}</h2>
-        <div class="en">{{ m.name_en }}</div>
-        <div class="note-text">ℹ️ {{ m.note }}</div>
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-icon">{{ p.icon }}</div>
+      <div style="flex:1;">
+        <div class="hero-title">{{ p.name_cn }}</div>
+        <div class="hero-en">{{ p.name_en }}</div>
+        <div class="hero-meta">
+          <div class="meta-pill">
+            <span class="label">参考批发价</span>
+            <span class="value">{{ p.price_range }}</span>
+          </div>
+          <div class="meta-pill">
+            <span class="label">起批量</span>
+            <span class="value">{{ p.moq }}</span>
+          </div>
+          <div class="meta-pill">
+            <span class="label">平台</span>
+            <span class="value">1688.com</span>
+          </div>
+        </div>
+        <div class="hero-note">⚡ 采购要点：{{ p.note }}</div>
       </div>
     </div>
 
-    <!-- Controls -->
-    <div class="controls">
-      <input class="search-box" type="text" placeholder="搜索厂商名称、城市…"
-             oninput="filterTable('{{ key }}', this.value)">
-      <button class="filter-btn active" onclick="setFilter('{{ key }}', 'all', this)">全部</button>
-      <button class="filter-btn" onclick="setFilter('{{ key }}', 'factory', this)">仅工厂</button>
-      <button class="filter-btn" onclick="setFilter('{{ key }}', 'audited', this)">已认证</button>
+    <!-- Grid: Links + Keywords -->
+    <div class="grid-2">
+
+      <!-- 1688 直达链接 -->
+      <div class="card">
+        <div class="card-header">
+          🔗 1688 直达入口
+        </div>
+        <div class="link-list">
+          {% for link in p.links %}
+          <a class="link-btn {{ link.type }}"
+             href="{{ link.url }}"
+             target="_blank" rel="noopener">
+            <div class="lft">
+              <span class="btn-label">{{ link.label }}</span>
+              <span class="btn-desc">{{ link.desc }}</span>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- 推荐搜索关键词 -->
+      <div class="card">
+        <div class="card-header">
+          🔑 推荐搜索词（可复制到 1688 搜索框）
+        </div>
+        <div class="kw-list">
+          {% for kw in p.keywords %}
+          <div class="kw-row">
+            <span class="kw-text">{{ kw }}</span>
+            <button class="kw-copy" onclick="copyKw(this, '{{ kw }}')">复制</button>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
     </div>
 
-    <!-- Table -->
-    <div class="table-wrap">
-      <table id="table-{{ key }}">
-        <thead>
-          <tr>
-            <th class="center" style="width:44px;">#</th>
-            <th>厂商信息</th>
-            <th>参考价格</th>
-            <th class="center" style="width:90px;">综合评分</th>
-            <th class="center" style="width:100px;">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% set items = data.get(key, []) %}
-          {% if items %}
-            {% for item in items %}
-            {% set score = item.score | int %}
-            {% if score >= 75 %}{% set sc = 's-high' %}{% set bg = 'bg-high' %}{% set grade = '优质' %}
-            {% elif score >= 60 %}{% set sc = 's-good' %}{% set bg = 'bg-good' %}{% set grade = '良好' %}
-            {% elif score >= 45 %}{% set sc = 's-mid' %}{% set bg = 'bg-mid' %}{% set grade = '一般' %}
-            {% else %}{% set sc = 's-low' %}{% set bg = 'bg-low' %}{% set grade = '待核实' %}{% endif %}
+    <!-- Grid: Specs + Tips -->
+    <div class="grid-2">
 
-            {%- set pct = [score, 100] | min -%}
+      <!-- 选品规格要点 -->
+      <div class="card">
+        <div class="card-header">
+          📋 选品规格要点
+        </div>
+        <div class="spec-list">
+          {% for s in p.specs %}
+          <div class="spec-row {% if s.key %}key{% endif %}">
+            <div class="spec-label">
+              {% if s.key %}<span class="key-dot"></span>{% endif %}
+              {{ s.label }}
+            </div>
+            <div class="spec-value">{{ s.value }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
 
-            <tr data-company="{{ item.company | lower }}"
-                data-loc="{{ item.location | lower }}"
-                data-factory="{{ '1' if item.is_manufacturer else '0' }}"
-                data-audited="{{ '1' if item.audited else '0' }}">
+      <!-- 采购注意事项 -->
+      <div class="card">
+        <div class="card-header">
+          ⚠️ 采购注意事项
+        </div>
+        <div class="tip-list">
+          {% for tip in p.tips %}
+          <div class="tip-item">
+            <div class="tip-num">{{ loop.index }}</div>
+            <div>{{ tip }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
 
-              <!-- Rank -->
-              <td><div class="rank-num">{{ loop.index }}</div></td>
-
-              <!-- Company Info -->
-              <td>
-                <div class="company-name">{{ item.company }}</div>
-                <div class="product-title" title="{{ item.product }}">{{ item.product }}</div>
-                <div class="meta-row">
-                  {% if item.is_manufacturer %}
-                  <span class="tag tag-factory">🏭 工厂</span>
-                  {% else %}
-                  <span class="tag tag-trade">🔄 贸易商</span>
-                  {% endif %}
-
-                  {% if 'diamond' in (item.certifications | lower) %}
-                  <span class="tag tag-diamond">💎 Diamond</span>
-                  {% elif 'gold' in (item.certifications | lower) %}
-                  <span class="tag tag-gold">⭐ Gold</span>
-                  {% endif %}
-
-                  {% if item.audited %}
-                  <span class="tag tag-audited">✓ Audited</span>
-                  {% endif %}
-
-                  {% if item.location %}
-                  <span class="tag tag-loc">📍 {{ item.location }}</span>
-                  {% endif %}
-                </div>
-
-                <!-- Score breakdown pills -->
-                {% if item.score_breakdown %}
-                <div class="breakdown-row">
-                  {% set label_map = {
-                    'magnet_feature': '磁铁',
-                    'material_quality': '材质',
-                    'handle_quality': '手柄',
-                    'is_manufacturer': '工厂',
-                    'certification': '认证',
-                    'location_score': '产地',
-                    'anti_drip': '止流',
-                    'frame_material': '钢架',
-                    'compatibility': '兼容',
-                    'blade_material': '刀片',
-                    'handle_design': '手柄',
-                    'multi_function': '多功能'
-                  } %}
-                  {% for k, v in item.score_breakdown.items() %}
-                  {% set maxv = m.weights.get(k, 1) %}
-                  {% set hit = (v / maxv) >= 0.7 if maxv else false %}
-                  <span class="bd-pill {% if hit %}hit{% endif %}">
-                    {{ label_map.get(k, k) }} {{ v }}/{{ maxv }}
-                  </span>
-                  {% endfor %}
-                </div>
-                {% endif %}
-              </td>
-
-              <!-- Price -->
-              <td>
-                {% if item.price %}
-                  {% set parts = item.price.split('\n') %}
-                  <div class="price-text">{{ parts[0][:30] }}</div>
-                  {% if parts|length > 1 %}
-                  <div class="moq-text">{{ parts[1][:30] }}</div>
-                  {% endif %}
-                {% else %}
-                  <span class="btn-none">面议</span>
-                {% endif %}
-              </td>
-
-              <!-- Score -->
-              <td class="center score-cell">
-                <div class="score-num {{ sc }}">{{ score }}</div>
-                <div class="score-bar-track">
-                  <div class="score-bar-fill {{ bg }}" style="width:{{ pct }}%"></div>
-                </div>
-                <div class="score-label {{ sc }}">{{ grade }}</div>
-              </td>
-
-              <!-- Action -->
-              <td class="center">
-                {% if item.url %}
-                <a class="btn-detail" href="{{ item.url }}" target="_blank" rel="noopener">
-                  查看详情 →
-                </a>
-                {% else %}
-                <span class="btn-none">—</span>
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
-          {% else %}
-          <tr>
-            <td colspan="5" style="text-align:center;padding:40px;color:#9ca3af;">
-              此产品暂无数据
-            </td>
-          </tr>
-          {% endif %}
-        </tbody>
-      </table>
-    </div><!-- /table-wrap -->
-
-    <!-- Legend -->
-    <div class="legend">
-      📊 <strong>评分维度（满分100）：</strong>
-      {% for k, v in m.weights.items() %}
-        <strong>{{ {'magnet_feature':'磁铁功能','material_quality':'材质','handle_quality':'手柄','is_manufacturer':'工厂/贸易','certification':'认证等级','location_score':'产地','anti_drip':'止流功能','frame_material':'枪架材质','compatibility':'规格兼容','blade_material':'刀片材质','handle_design':'手柄设计','multi_function':'多功能'}.get(k, k) }}</strong>({{ v }}分)
-        {%- if not loop.last %}、{% endif %}
-      {% endfor %}
-      <br>
-      💎 Diamond Member ＞ ⭐ Gold Member ＞ Basic · ✓ Audited = 第三方审厂认证
-      <br>
-      <em>⚠️ 评分基于公开页面信息自动生成，采购前请自行索取样品与工厂资质文件。</em>
     </div>
-
   </div><!-- /panel -->
   {% endfor %}
+</div>
 
-  {% endif %}
-</div><!-- /main -->
-
-<!-- ── Footer Run Bar ── -->
-<div class="run-bar">
-  <div>
-    <button class="btn-run" onclick="triggerRun(this)" id="run-btn">
-      <span id="run-icon">🔄</span> 重新抓取最新数据
-    </button>
-  </div>
-  <div>数据来源: Made-in-China.com &nbsp;·&nbsp; 每次抓取约需 3–5 分钟</div>
+<!-- Footer -->
+<div class="footer">
+  数据来源：<a href="https://www.1688.com" target="_blank">1688.com（阿里巴巴国内批发平台）</a>
+  &nbsp;·&nbsp; 价格为市场参考区间，以实际厂家报价为准
+  <br>
+  ⚠️ 建议采购前索取样品，确认材质与工艺后再大批下单
 </div>
 
 <script>
-// ── Tab switching ──
 function switchTab(key) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -609,60 +466,15 @@ function switchTab(key) {
   document.getElementById('panel-' + key).classList.add('active');
 }
 
-// ── Filter & Search ──
-let activeFilters = {};
-
-function filterTable(key, query) {
-  const rows = document.querySelectorAll('#table-' + key + ' tbody tr[data-company]');
-  const q = query.toLowerCase();
-  const f = activeFilters[key] || 'all';
-  rows.forEach(row => {
-    const matchSearch = !q || row.dataset.company.includes(q) || row.dataset.loc.includes(q);
-    const matchFilter = f === 'all'
-      || (f === 'factory'  && row.dataset.factory  === '1')
-      || (f === 'audited'  && row.dataset.audited   === '1');
-    row.style.display = (matchSearch && matchFilter) ? '' : 'none';
+function copyKw(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ 已复制';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '复制';
+      btn.classList.remove('copied');
+    }, 1800);
   });
-  // Re-number visible rows
-  let n = 1;
-  rows.forEach(row => {
-    if (row.style.display !== 'none') {
-      row.querySelector('.rank-num').textContent = n++;
-    }
-  });
-}
-
-function setFilter(key, filter, btn) {
-  activeFilters[key] = filter;
-  btn.closest('.controls').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const searchVal = btn.closest('.controls').querySelector('.search-box').value;
-  filterTable(key, searchVal);
-}
-
-// ── Trigger scrape ──
-function triggerRun(btn) {
-  btn.disabled = true;
-  document.getElementById('run-icon').textContent = '⏳';
-  btn.childNodes[1].textContent = ' 抓取中…';
-  fetch('/api/run', { method: 'POST' })
-    .then(r => r.json())
-    .then(d => {
-      if (d.ok) {
-        btn.childNodes[1].textContent = ' 已启动，3–5分钟后刷新页面';
-        setTimeout(() => location.reload(), 300000); // auto-refresh after 5min
-      } else {
-        alert('启动失败: ' + d.error);
-        btn.disabled = false;
-        document.getElementById('run-icon').textContent = '🔄';
-        btn.childNodes[1].textContent = ' 重新抓取最新数据';
-      }
-    })
-    .catch(() => {
-      btn.disabled = false;
-      document.getElementById('run-icon').textContent = '🔄';
-      btn.childNodes[1].textContent = ' 重新抓取最新数据';
-    });
 }
 </script>
 
