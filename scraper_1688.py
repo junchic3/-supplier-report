@@ -297,7 +297,8 @@ async def run():
                 key = re.sub(r"\s+", "", item.get("company","")).lower()[:20] or item.get("title","")[:20]
                 if key and (key not in seen or item["score"] > seen[key]["score"]):
                     seen[key] = item
-            unique = sorted(seen.values(), key=lambda x: x["score"], reverse=True)[:12]
+            # 主排序：成交量，次排序：综合评分
+            unique = sorted(seen.values(), key=lambda x: (x["sales_n"], x["score"]), reverse=True)[:20]
 
             log.info(f"去重排名后: {len(unique)} 家")
             all_results[product_key] = unique
